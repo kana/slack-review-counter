@@ -1,6 +1,8 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 
+const VERIFICATION_TOKEN = process.env.VERIFICATION_TOKEN
+
 const app = express()
 
 app.use(bodyParser.json())
@@ -13,18 +15,20 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   if (!req.body) {
-    res.send('missing body')
+    res.end()
+    console.log('missing body')
+    return
+  }
+
+  if (req.body.token !== VERIFICATION_TOKEN) {
+    res.end()
+    console.log('invalid token')
     return
   }
 
   if (req.body.challenge) {
-    res.send(req.body.challenge)
-    return
+    return res.send(req.body.challenge)
   }
-
-  console.log(JSON.stringify(req.body))
-  res.send('')
-  return
 })
 
 app.listen(app.get('port'), () => {
