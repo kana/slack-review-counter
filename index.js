@@ -55,9 +55,9 @@ async function handleMessage (text) {
   const statusText = p.profile.status_text || ''
 
   const m = statusText.match(/^(\d+)個レビューしてる\((.*)\)$/) || []
-  const statusCount = parseInt(m[0] || '0', 10)
+  const statusCount = parseInt(m[1] || '0', 10)
   const currentDate = moment().tz('Japan').format('M/D')
-  const statusDate = m[1] || currentDate
+  const statusDate = m[2] || currentDate
 
   const moreCount = (text.match(/https:\/\/github\.com\/YOUR_ORGANIZATION\/[^\/]+\/pull\/\d+/g) || []).length
   const newCount = currentDate === statusDate ? statusCount + moreCount : moreCount
