@@ -12,7 +12,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-  res.send(req.body && req.body.challenge)
+  if (!req.body) {
+    res.send('missing body')
+    return
+  }
+
+  if (req.body.challenge) {
+    res.send(req.body.challenge)
+    return
+  }
+
+  console.log(JSON.stringify(req.body))
+  res.send('')
+  return
 })
 
 app.listen(app.get('port'), () => {
