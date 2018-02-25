@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser')
 const express = require('express')
+const moment = require('moment-timezone')
 const slack = require('slack')
 
 const VERIFICATION_TOKEN = process.env.VERIFICATION_TOKEN
@@ -50,17 +51,16 @@ async function handleMessage (text) {
     return
   }
 
-  const moreCount = (text.match(/https:\/\/github.com\/pixiv\/[^\/]+\/pull\/\d+/g) || []).length
-
   const p = await usersProfileGet()
   const statusText = p.profile.status_text || ''
 
-  const m = statusText.match(/\d+/g)
-  const prevCount = m ? parseInt(m[0], 10) : 0
-  const currentDay = new Date().getDay()
-  const prevDay = m && m[1] ? parseInt(m[1], 10) : currentDay
+  const m = statusText.match(/^(\d+)個レビューしてる\((.*)\)$/) || []
+  const statusCount = parseInt(m[0] || '0', 10)
+  const statusDate = m[1] || currentDate
+  const currentDate = moment().tz('Japan').format('M/D')
 
-  const newCount = currentDay === prevDay ? prevCount + moreCount : moreCount
+  const moreCount = (text.match(/https:\/\/github.com\/pixiv\/[^\/]+\/pull\/\d+/g) || []).length
+  const newCount = currentDate === statusDate ? statusCount + moreCount : moreCount
 
   const emojiTable = {
     0: ':zero:',
@@ -79,19 +79,17 @@ async function handleMessage (text) {
 
   usersProfileSet({
     status_emoji: emoji,
-    status_text: newCount + '個レビューしてる(#' + currentDay + ')'
+    status_text: `${newCount}個レビューしてる(${currentDate})`
   })
 }
 
-async function usersProfileGet ()
-{
+async function usersProfileGet () {
   return await slack.users.profile.get({
     token: OAUTH_ACCESS_TOKEN
   });
 }
 
-async function usersProfileSet (statusData)
-{
+async function usersProfileSet (statusData) {
   return await slack.users.profile.set({
     token: OAUTH_ACCESS_TOKEN,
     profile: JSON.stringify(statusData)
