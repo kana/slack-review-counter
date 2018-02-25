@@ -59,7 +59,7 @@ async function handleMessage (text) {
   const statusDate = m[1] || currentDate
   const currentDate = moment().tz('Japan').format('M/D')
 
-  const moreCount = (text.match(/https:\/\/github.com\/pixiv\/[^\/]+\/pull\/\d+/g) || []).length
+  const moreCount = (text.match(/https:\/\/github\.com\/YOUR_ORGANIZATION\/[^\/]+\/pull\/\d+/g) || []).length
   const newCount = currentDate === statusDate ? statusCount + moreCount : moreCount
 
   const emojiTable = {
